@@ -74,9 +74,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // nextButtonHandler() - Handles the click on the next button
   // showResults() - Displays the end view and the quiz results
 
-
+ 
 
   function showQuestion() {
+
+
+
     // If the quiz has ended, show the results
     if (quiz.hasEnded()) {
       showResults();
@@ -98,19 +101,20 @@ document.addEventListener("DOMContentLoaded", () => {
     //
     // 1. Show the question
     // Update the inner text of the question container element and show the question text
+    questionContainer.innerText = question.text;
 
     
     // 2. Update the green progress bar
     // Update the green progress bar (div#progressBar) width so that it shows the percentage of questions answered
     
-    progressBar.style.width = `65%`; // This value is hardcoded as a placeholder
+    progressBar.style.width = `${(quiz.currentQuestionIndex / quiz.questions.length) * 100}%`; 
 
 
 
     // 3. Update the question count text 
     // Update the question count (div#questionCount) show the current question out of total questions
     
-    questionCount.innerText = `Question 1 of 10`; //  This value is hardcoded as a placeholder
+    questionCount.innerText = `Question ${quiz.currentQuestionIndex + 1} of ${quiz.questions.length}`; 
 
 
     
@@ -128,8 +132,21 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hint 3: You can use the `element.appendChild()` method to append an element to the choices container.
       // Hint 4: You can use the `element.innerText` property to set the inner text of an element.
 
+    question.choices.forEach((choice, index) => { 
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "choice";
+      input.value = choice;
+      input.id = `choice${index}`;
+      const label = document.createElement("label");
+      label.innerText = choice;
+      label.htmlFor = `choice${index}`;
+      choiceContainer.appendChild(input);
+      choiceContainer.appendChild(label);
+      choiceContainer.appendChild(document.createElement("br"));
+    })
   }
-
+  
 
   
   function nextButtonHandler () {
@@ -141,17 +158,28 @@ document.addEventListener("DOMContentLoaded", () => {
     //
     // 1. Get all the choice elements. You can use the `document.querySelectorAll()` method.
 
+    const choices = document.querySelectorAll("input[name='choice']");
+
 
     // 2. Loop through all the choice elements and check which one is selected
       // Hint: Radio input elements have a property `.checked` (e.g., `element.checked`).
       //  When a radio input gets selected the `.checked` property will be set to true.
       //  You can use check which choice was selected by checking if the `.checked` property is true.
-
+    choices.forEach(choice => {
+      if (choice.checked) {
+        selectedAnswer = choice.value;
+      }
+    })
       
     // 3. If an answer is selected (`selectedAnswer`), check if it is correct and move to the next question
       // Check if selected answer is correct by calling the quiz method `checkAnswer()` with the selected answer.
       // Move to the next question by calling the quiz method `moveToNextQuestion()`.
       // Show the next question by calling the function `showQuestion()`.
+    if (selectedAnswer) {
+      quiz.checkAnswer(selectedAnswer);
+      quiz.moveToNextQuestion();
+      showQuestion();
+    }
   }  
 
 
@@ -168,7 +196,37 @@ document.addEventListener("DOMContentLoaded", () => {
     endView.style.display = "flex";
     
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
-    resultContainer.innerText = `You scored 1 out of 1 correct answers!`; // This value is hardcoded as a placeholder
+    resultContainer.innerText = `You got ${quiz.correctAnswers} out of ${quiz.questions.length} questions correct!`;
   }
+  /*Now that you have implemented the quiz functionality, add a “Restart Quiz” button to the end view to allow the user to restart the quiz.
+
+The button is already included in the index.html file, but we left it commented out. Go ahead and uncomment the button element to display the button.
+
+
+Once you have done that, in the index.js add a “click” event listener to the reset quiz button and implement the event handler function. When the button is clicked, the function should:
+
+Hide the end view
+
+Show the quiz view
+
+Reset the quiz:
+
+Reset the currentQuestionIndex to 0
+
+Reset the correctAnswers to 0
+
+Shuffle the questions
+
+Show the first question*/
+
+  const resetButton = document.getElementById("resetButton");
+  resetButton.addEventListener("click", () => {
+    quiz.currentQuestionIndex = 0;
+    quiz.correctAnswers = 0;
+    quiz.shuffleQuestions();
+    quizView.style.display = "block";
+    endView.style.display = "none";
+    showQuestion();
+  });
   
 });
