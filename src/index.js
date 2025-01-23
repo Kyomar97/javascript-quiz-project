@@ -61,6 +61,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let timer;
 
+  function startTimer() {
+    timer = setInterval(() => {
+      quiz.timeRemaining--;
+      const minutes = Math.floor(quiz.timeRemaining / 60).toString().padStart(2, "0");
+      const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+      timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+
+      // If the time runs out, show the results
+      if (quiz.timeRemaining <= 0) {
+        clearInterval(timer);
+        showResults();
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timer);
+  }
+  // Start the countdown timer
+  timer = setInterval(() => {
+    quiz.timeRemaining--;
+    const minutes = Math.floor(quiz.timeRemaining / 60).toString().padStart(2, "0");
+    const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+    timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+
+    // If the time runs out, show the results
+    if (quiz.timeRemaining <= 0) {
+      clearInterval(timer);
+      showResults();
+    }
+  }, 1000);
+
+  
+
 
   /************  EVENT LISTENERS  ************/
 
@@ -182,13 +216,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }  
 
-
-
-
   function showResults() {
 
     // YOUR CODE HERE:
-    //
+    stopTimer();
     // 1. Hide the quiz view (div#quizView)
     quizView.style.display = "none";
 
@@ -198,35 +229,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
     resultContainer.innerText = `You got ${quiz.correctAnswers} out of ${quiz.questions.length} questions correct!`;
   }
-  /*Now that you have implemented the quiz functionality, add a “Restart Quiz” button to the end view to allow the user to restart the quiz.
-
-The button is already included in the index.html file, but we left it commented out. Go ahead and uncomment the button element to display the button.
-
-
-Once you have done that, in the index.js add a “click” event listener to the reset quiz button and implement the event handler function. When the button is clicked, the function should:
-
-Hide the end view
-
-Show the quiz view
-
-Reset the quiz:
-
-Reset the currentQuestionIndex to 0
-
-Reset the correctAnswers to 0
-
-Shuffle the questions
-
-Show the first question*/
-
+  
   const resetButton = document.getElementById("resetButton");
   resetButton.addEventListener("click", () => {
     quiz.currentQuestionIndex = 0;
     quiz.correctAnswers = 0;
+    quiz.timeRemaining = quizDuration;
     quiz.shuffleQuestions();
     quizView.style.display = "block";
     endView.style.display = "none";
+    updateTimerDisplay();
     showQuestion();
+    startTimer();
   });
   
+  startTimer();
 });
